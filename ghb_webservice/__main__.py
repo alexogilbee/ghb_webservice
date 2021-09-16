@@ -10,6 +10,11 @@ router = routing.Router()
 
 routes = web.RouteTableDef()
 
+# issue opened event
+# need to add estimated time, prob stored in DB?
+# also need an issue closed event, to record the time taken to resolve the issue
+# can use this ^ to also comment on the issue, stating how long it took for the issue to be resolved
+# still dunno if we wanna incorporate tags in this or not (i've never used them tbh)
 @router.register("issues", action="opened")
 async def issue_opened_event(event, gh, *args, **kwargs):
     """ Whenever an issue is opened, greet the author and say thanks."""
