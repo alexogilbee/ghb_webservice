@@ -32,7 +32,7 @@ async def issue_opened_event(event, gh, *args, **kwargs):
     # mark down start time
     global tstamp1
     tstamp1 = dt.now()
-    tstamp1 = tstamp1.strftime(fmt)
+    #tstamp1 = tstamp1.strftime(fmt)
 
     message = f"Thanks for the report @{author}! This should take around {eta} minutes to resolve! (I'm a bot)."
     await gh.post(url, data={'body': message})
@@ -48,10 +48,11 @@ async def issue_closed_event(event, gh, *args, **kwargs):
     global tstamp1
     global tstamp2
     tstamp2 = dt.now()
-    tstamp2 = tstamp2.strftime(fmt)
+    #tstamp2 = tstamp2.strftime(fmt)
     td = tstamp2 - tstamp1
     td_mins = int(round(td.total_seconds() / 60))
 
+    global eta
     eta = (eta + td_mins) / 2
 
     message = f"Thanks @{author} for clsoing this issue! It took {td_mins} minutes to resolve! (I'm still a bot)."
