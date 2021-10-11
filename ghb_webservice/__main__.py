@@ -6,9 +6,16 @@ from aiohttp import web
 from gidgethub import routing, sansio
 from gidgethub import aiohttp as gh_aiohttp
 
+from datetime import datetime
+
 router = routing.Router()
 
 routes = web.RouteTableDef()
+
+eta = 60 # minutes also TEMP
+fmt = '%Y-%m-%d %H:%M:%S'
+tstamp1 = datetime.datetime.now()
+tstamp2 = datetime.datetime.now()
 
 # issue opened event
 # need to add estimated time, prob stored in DB?
@@ -22,7 +29,29 @@ async def issue_opened_event(event, gh, *args, **kwargs):
     url = event.data["issue"]["comments_url"]
     author = event.data["issue"]["user"]["login"]
 
-    message = f"Thanks for the report @{author}! I will look into it ASAP! (I'm a bot)."
+    # mark down start time
+    tstamp1 = datetime.datetime.now()
+    tstamp1 = tstamp1.strftime(fmt)
+
+    message = f"Thanks for the report @{author}! This should take around {eta} minutes to resolve! (I'm a bot)."
+    await gh.post(url, data={'body': message})
+
+@router.register("issues", action="closed")
+async def issue_closed_event(event, gh, *args, **kwargs):
+    """ When an issue is closed, comment and say how long it took to resolve """
+
+    url = event.data["issue"]["comments_url"]
+    author = event.data["issue"]["user"]["login"]
+
+    # mark down end time
+    tstamp2 = datetime.datetime.now()
+    tstamp2 = tstamp2.strftime(fmt)
+    td = tstamp2 - tstamp1
+    td_mins = int(round(td.total_seconds() / 60))
+
+    eta = (eta + td_mins) / 2
+
+    message = f"Thanks @{author} for clsoing this issue! It took {td_mins} minutes to resolve! (I'm still a bot)."
     await gh.post(url, data={'body': message})
 
 @routes.post("/")
