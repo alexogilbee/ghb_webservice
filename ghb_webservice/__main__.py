@@ -6,7 +6,7 @@ from aiohttp import web
 from gidgethub import routing, sansio
 from gidgethub import aiohttp as gh_aiohttp
 
-import datetime
+from datetime import datetime as dt
 
 router = routing.Router()
 
@@ -14,8 +14,8 @@ routes = web.RouteTableDef()
 
 eta = 60 # minutes also TEMP
 fmt = '%Y-%m-%d %H:%M:%S'
-tstamp1 = datetime.datetime.now()
-tstamp2 = datetime.datetime.now()
+tstamp1 = dt.now()
+tstamp2 = dt.now()
 
 # issue opened event
 # need to add estimated time, prob stored in DB?
@@ -30,7 +30,7 @@ async def issue_opened_event(event, gh, *args, **kwargs):
     author = event.data["issue"]["user"]["login"]
 
     # mark down start time
-    tstamp1 = datetime.datetime.now()
+    tstamp1 = dt.now()
     tstamp1 = tstamp1.strftime(fmt)
 
     message = f"Thanks for the report @{author}! This should take around {eta} minutes to resolve! (I'm a bot)."
@@ -44,7 +44,7 @@ async def issue_closed_event(event, gh, *args, **kwargs):
     author = event.data["issue"]["user"]["login"]
 
     # mark down end time
-    tstamp2 = datetime.datetime.now()
+    tstamp2 = dt.now()
     tstamp2 = tstamp2.strftime(fmt)
     td = tstamp2 - tstamp1
     td_mins = int(round(td.total_seconds() / 60))
