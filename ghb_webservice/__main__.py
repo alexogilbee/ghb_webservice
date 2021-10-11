@@ -30,6 +30,7 @@ async def issue_opened_event(event, gh, *args, **kwargs):
     author = event.data["issue"]["user"]["login"]
 
     # mark down start time
+    global tstamp1
     tstamp1 = dt.now()
     tstamp1 = tstamp1.strftime(fmt)
 
@@ -44,6 +45,8 @@ async def issue_closed_event(event, gh, *args, **kwargs):
     author = event.data["issue"]["user"]["login"]
 
     # mark down end time
+    global tstamp1
+    global tstamp2
     tstamp2 = dt.now()
     tstamp2 = tstamp2.strftime(fmt)
     td = tstamp2 - tstamp1
