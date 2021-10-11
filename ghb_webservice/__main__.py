@@ -6,7 +6,7 @@ from aiohttp import web
 from gidgethub import routing, sansio
 from gidgethub import aiohttp as gh_aiohttp
 
-from datetime import datetime
+import datetime
 
 router = routing.Router()
 
