@@ -8,6 +8,12 @@ from gidgethub import aiohttp as gh_aiohttp
 
 from datetime import datetime as dt
 
+from pymongo import MongoClient
+from pprint import pprint
+
+client = MongoClient("mongodb+srv://user:12345@test-server.scule.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+db = client.issueBot
+
 router = routing.Router()
 
 routes = web.RouteTableDef()
@@ -33,6 +39,16 @@ async def issue_opened_event(event, gh, *args, **kwargs):
     global tstamp1
     tstamp1 = dt.now()
     #tstamp1 = tstamp1.strftime(fmt)
+    
+    # insert issue into database
+    issue = {
+        'repo_id' : event.data["repository"]["full_name"], # subject to change
+        'issue_number' : event.data["issue"]["number"],
+        'title' : event.data["issue"]["title"],
+        'user' : author,
+        'start_time' : event.data["issue"]["milestone"]["created_at"]
+    }
+    result = db.reviews.insert_one(issue)
 
     message = f"Thanks for the report @{author}! This should take around {eta} minutes to resolve! (I'm a bot)."
     await gh.post(url, data={'body': message})
