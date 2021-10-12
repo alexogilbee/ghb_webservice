@@ -12,9 +12,9 @@ from pymongo import MongoClient
 from pprint import pprint
 
 print("Hey Howdy Holmes")
-url = os.environ.get("MDB_URL")
+#url = os.environ.get("MDB_URL")
 
-client = MongoClient(url)
+client = MongoClient("mongodb+srv://user:12345@test-server.scule.mongodb.net/issueBot?retryWrites=true&w=majority")
 db = client.issueBot
 
 router = routing.Router()
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     if port is not None:
         port = int(port)
 
-    web.run_app(app, port=port)
-
     serverStatusResult=db.command("serverStatus")
     pprint(serverStatusResult)
+    web.run_app(app, port=port)
+
