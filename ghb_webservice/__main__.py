@@ -16,8 +16,6 @@ url = os.environ.get("MDB_URL")
 
 client = MongoClient(url)
 db = client.issueBot
-serverStatusResult=db.command("serverStatus")
-pprint(serverStatusResult)
 
 router = routing.Router()
 
@@ -111,3 +109,6 @@ if __name__ == "__main__":
         port = int(port)
 
     web.run_app(app, port=port)
+
+    serverStatusResult=db.command("serverStatus")
+    pprint(serverStatusResult)
