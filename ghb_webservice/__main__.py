@@ -12,8 +12,9 @@ from pymongo import MongoClient
 from pprint import pprint
 
 print("Hey Howdy Holmes")
+url = os.environ.get("MDB_URL")
 
-client = MongoClient("mongodb+srv://user:12345@test-server.scule.mongodb.net/test-server?retryWrites=true&w=majority")
+client = MongoClient(url)
 db = client.issueBot
 serverStatusResult=db.command("serverStatus")
 pprint(serverStatusResult)
