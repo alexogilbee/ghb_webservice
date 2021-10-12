@@ -13,7 +13,7 @@ from pprint import pprint
 
 print("Hey Howdy Holmes")
 
-client = MongoClient("mongodb+srv://user:12345@test-server.scule.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+client = MongoClient("mongodb+srv://user:12345@test-server.scule.mongodb.net/test-server?retryWrites=true&w=majority")
 db = client.issueBot
 serverStatusResult=db.command("serverStatus")
 pprint(serverStatusResult)
