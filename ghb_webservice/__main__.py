@@ -12,9 +12,9 @@ from pymongo import MongoClient
 from pprint import pprint
 
 print("Hey Howdy Holmes")
-#url = os.environ.get("MDB_URL")
+url = os.environ.get("MDB_URL")
 
-client = MongoClient("mongodb+srv://user:12345@test-server.scule.mongodb.net/issueBot?retryWrites=true&w=majority")
+client = MongoClient(url)
 db = client.issueBot
 
 router = routing.Router()
@@ -49,7 +49,8 @@ async def issue_opened_event(event, gh, *args, **kwargs):
         'issue_number' : event.data["issue"]["number"],
         'title' : event.data["issue"]["title"],
         'user' : author,
-        'start_time' : event.data["issue"]["created_at"]
+        'start_time' : event.data["issue"]["created_at"],
+        'python_start' : tstamp1
     }
     result = db.reviews.insert_one(issue)
 
@@ -73,6 +74,10 @@ async def issue_closed_event(event, gh, *args, **kwargs):
 
     global eta
     eta = (eta + td_mins) / 2
+
+    # update DB entry
+    issue_number = event.data["issue"]["number"]
+    result = db.reviews.update_one({'issue_number' : issue_number}, {'$inc': {'end_time': event.data["issue"]["closed_at"], 'python_end': tstamp2}})
 
     message = f"Thanks @{author} for clsoing this issue! It took {td_mins} minutes to resolve! (I'm still a bot)."
     await gh.post(url, data={'body': message})
