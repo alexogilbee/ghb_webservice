@@ -46,7 +46,7 @@ async def issue_opened_event(event, gh, *args, **kwargs):
         'issue_number' : event.data["issue"]["number"],
         'title' : event.data["issue"]["title"],
         'user' : author,
-        'start_time' : event.data["issue"]["milestone"]["created_at"]
+        'start_time' : event.data["issue"]["created_at"]
     }
     result = db.reviews.insert_one(issue)
 
