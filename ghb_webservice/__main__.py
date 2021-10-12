@@ -11,6 +11,8 @@ from datetime import datetime as dt
 from pymongo import MongoClient
 from pprint import pprint
 
+print("Hey Howdy Holmes")
+
 client = MongoClient("mongodb+srv://user:12345@test-server.scule.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
 db = client.issueBot
 
