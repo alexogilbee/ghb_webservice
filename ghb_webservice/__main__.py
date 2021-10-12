@@ -77,7 +77,7 @@ async def issue_closed_event(event, gh, *args, **kwargs):
 
     # update DB entry
     issue_number = event.data["issue"]["number"]
-    result = db.reviews.update_one({'issue_number' : issue_number}, {'$inc': {'end_time': event.data["issue"]["closed_at"], 'python_end': tstamp2}})
+    result = db.reviews.update_one({'issue_number' : issue_number}, {'$set': {'end_time': event.data["issue"]["closed_at"], 'python_end': tstamp2}})
 
     message = f"Thanks @{author} for clsoing this issue! It took {td_mins} minutes to resolve! (I'm still a bot)."
     await gh.post(url, data={'body': message})
