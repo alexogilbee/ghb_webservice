@@ -11,7 +11,6 @@ from datetime import datetime as dt
 from pymongo import MongoClient
 from pprint import pprint
 
-print("Hey Howdy Holmes")
 url = os.environ.get("MDB_URL")
 
 client = MongoClient(url)
@@ -56,6 +55,15 @@ async def issue_opened_event(event, gh, *args, **kwargs):
     }
     result = db.reviews.insert_one(issue)
 
+    # determine ETA from DB
+    eta_list = db.reviews.find({'duration': {'$gt': 0}})
+    eta_count = db.reviews.find({'duration': {'$gt': 0}}).count()
+    eta_sum = 0
+    for dura in eta_list:
+        eta_sum += dura['duration']
+    if eta_sum > 0:
+        eta = eta_sum
+
     message = f"Thanks for the report @{author}! This should take around {eta} minutes to resolve! (I'm a bot)."
     await gh.post(url, data={'body': message})
 
@@ -81,7 +89,25 @@ async def issue_closed_event(event, gh, *args, **kwargs):
 
     result = db.reviews.update_one({'issue_id' : issue_id}, {'$set': {'end_time': event.data["issue"]["closed_at"], 'python_end': tstamp2, 'duration': td_mins}})
 
-    message = f"Thanks @{author} for clsoing this issue! It took {td_mins} minutes to resolve! (I'm still a bot)."
+    time_str = ""
+    if td_mins >= 1440: # 1 day in minutes
+        num_days = int(td_mins / 1440)
+        time_str = time_str + num_days + " day"
+        if num_days > 1: # 2 days for plural
+            time_str = time_str + "s"
+        time_str = time_str + ", "
+    if td_mins >= 60: # 1 hour
+        num_hours = int((td_mins - (num_days * 1440)) / 60) # subtract whole days, left with remainder hours
+        time_str = time_str + num_hours + " hour"
+        if num_hours > 1:
+            time_str = time_str + "s"
+        time_str = time_str + ", "
+    num_mins = int(td_mins - (num_days * 1440) - (num_hours * 60))
+    time_str = time_str + num_mins + " minute"
+    if num_mins > 1:
+        time_str = time_str + "s"
+
+    message = f"Thanks @{author} for clsoing this issue! It took {time_str} to resolve! (I'm still a bot)."
     await gh.post(url, data={'body': message})
 
 @routes.post("/")
@@ -115,7 +141,5 @@ if __name__ == "__main__":
     if port is not None:
         port = int(port)
 
-    serverStatusResult=db.command("serverStatus")
-    pprint(serverStatusResult)
     web.run_app(app, port=port)
 
