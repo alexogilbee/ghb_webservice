@@ -62,7 +62,7 @@ async def issue_opened_event(event, gh, *args, **kwargs):
     for dura in eta_list:
         eta_sum += dura['duration']
     if eta_sum > 0:
-        eta = eta_sum
+        eta = eta_sum / eta_count
 
     message = f"Thanks for the report @{author}! This should take around {eta} minutes to resolve! (I'm a bot)."
     await gh.post(url, data={'body': message})
