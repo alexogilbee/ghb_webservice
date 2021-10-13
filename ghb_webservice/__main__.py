@@ -45,8 +45,10 @@ async def issue_opened_event(event, gh, *args, **kwargs):
     
     # insert issue into database
     issue = {
-        'repo_id' : event.data["repository"]["full_name"], # subject to change
+        'repo_name' : event.data["repository"]["full_name"], # subject to change
+        'repo_id' : event.data["repository"]["id"],
         'issue_number' : event.data["issue"]["number"],
+        'issue_id' : event.data["issue"]["id"],
         'title' : event.data["issue"]["title"],
         'user' : author,
         'start_time' : event.data["issue"]["created_at"],
@@ -69,15 +71,18 @@ async def issue_closed_event(event, gh, *args, **kwargs):
     global tstamp2
     tstamp2 = dt.now()
     #tstamp2 = tstamp2.strftime(fmt)
-    td = tstamp2 - tstamp1
-    td_mins = int(round(td.total_seconds() / 60))
 
     global eta
     eta = (eta + td_mins) / 2
 
     # update DB entry
-    issue_number = event.data["issue"]["number"]
-    result = db.reviews.update_one({'issue_number' : issue_number}, {'$set': {'end_time': event.data["issue"]["closed_at"], 'python_end': tstamp2}})
+    issue_id = event.data["issue"]["id"]
+    old_data = db.reviews.find({}, {'issue_id': issue_id})
+
+    td = tstamp2 - old_data.get('python_start')
+    td_mins = int(round(td.total_seconds() / 60))
+
+    result = db.reviews.update_one({'issue_id' : issue_id}, {'$set': {'end_time': event.data["issue"]["closed_at"], 'python_end': tstamp2, 'duration': td_mins}})
 
     message = f"Thanks @{author} for clsoing this issue! It took {td_mins} minutes to resolve! (I'm still a bot)."
     await gh.post(url, data={'body': message})
