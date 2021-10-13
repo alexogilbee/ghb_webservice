@@ -72,9 +72,6 @@ async def issue_closed_event(event, gh, *args, **kwargs):
     tstamp2 = dt.now()
     #tstamp2 = tstamp2.strftime(fmt)
 
-    global eta
-    eta = (eta + td_mins) / 2
-
     # update DB entry
     issue_id = event.data["issue"]["id"]
     old_data = db.reviews.find({}, {'issue_id': issue_id})
