@@ -62,7 +62,7 @@ async def issue_opened_event(event, gh, *args, **kwargs):
     for dura in eta_list:
         eta_sum += dura['duration']
     if eta_sum > 0:
-        eta = eta_sum / eta_count
+        eta = int(eta_sum / eta_count)
 
     message = f"Thanks for the report @{author}! This should take around {eta} minutes to resolve! (I'm a bot)."
     await gh.post(url, data={'body': message})
@@ -90,6 +90,8 @@ async def issue_closed_event(event, gh, *args, **kwargs):
     result = db.reviews.update_one({'issue_id' : issue_id}, {'$set': {'end_time': event.data["issue"]["closed_at"], 'python_end': tstamp2, 'duration': td_mins}})
 
     time_str = ""
+    num_days = 0
+    num_hours = 0
     if td_mins >= 1440: # 1 day in minutes
         num_days = int(td_mins / 1440)
         time_str = time_str + num_days + " day"
