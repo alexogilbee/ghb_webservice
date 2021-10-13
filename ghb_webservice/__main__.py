@@ -74,7 +74,7 @@ async def issue_closed_event(event, gh, *args, **kwargs):
 
     # update DB entry
     issue_id = event.data["issue"]["id"]
-    old_data = db.reviews.find({}, {'issue_id': issue_id})
+    old_data = db.reviews.find({'issue_id': issue_id})
 
     td = tstamp2 - old_data.get('python_start')
     td_mins = int(round(td.total_seconds() / 60))
