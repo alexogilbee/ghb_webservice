@@ -89,7 +89,7 @@ async def issue_opened_event(event, gh, *args, **kwargs):
 
     timey_string = time_string(eta)
 
-    message = f"Thanks for the report @{author}! This should take around {eta} to resolve! (I'm a bot)."
+    message = f"Thanks for the report @{author}! This should take around {timey_string} to resolve! (I'm a bot)."
     await gh.post(url, data={'body': message})
 
 @router.register("issues", action="closed")
