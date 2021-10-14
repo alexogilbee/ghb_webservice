@@ -14,7 +14,7 @@ from pprint import pprint
 url = os.environ.get("MDB_URL")
 
 client = MongoClient(url)
-db = client.issueBot
+db = client.githubDB
 
 router = routing.Router()
 
@@ -76,11 +76,11 @@ async def issue_opened_event(event, gh, *args, **kwargs):
         'start_time' : event.data["issue"]["created_at"],
         'python_start' : tstamp1
     }
-    result = db.reviews.insert_one(issue)
+    result = db.issueClosure.insert_one(issue)
 
     # determine ETA from DB
-    eta_list = db.reviews.find({'duration': {'$gt': 0}})
-    eta_count = db.reviews.find({'duration': {'$gt': 0}}).count()
+    eta_list = db.issueClosure.find({'duration': {'$gt': 0}})
+    eta_count = db.issueClosure.find({'duration': {'$gt': 0}}).count()
     eta_sum = 0
     for dura in eta_list:
         eta_sum += dura['duration']
@@ -107,12 +107,12 @@ async def issue_closed_event(event, gh, *args, **kwargs):
 
     # update DB entry
     issue_id = event.data["issue"]["id"]
-    old_data = db.reviews.find_one({'issue_id': issue_id})
+    old_data = db.issueClosure.find_one({'issue_id': issue_id})
 
     td = tstamp2 - old_data.get('python_start')
     td_mins = int(round(td.total_seconds() / 60))
 
-    result = db.reviews.update_one({'issue_id' : issue_id}, {'$set': {'end_time': event.data["issue"]["closed_at"], 'python_end': tstamp2, 'duration': td_mins}})
+    result = db.issueClosure.update_one({'issue_id' : issue_id}, {'$set': {'end_time': event.data["issue"]["closed_at"], 'python_end': tstamp2, 'duration': td_mins}})
 
     timey_str = time_string(td_mins)
 
