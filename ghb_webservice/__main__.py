@@ -32,18 +32,18 @@ def time_string(td_mins):
     if td_mins >= 1440: # 1 day in minutes
         num_days = int(td_mins / 1440)
         time_str = time_str + str(num_days) + " day"
-        if num_days > 1: # 2 days for plural
+        if num_days != 1: # 2 days for plural
             time_str = time_str + "s"
         time_str = time_str + ", "
     if td_mins >= 60: # 1 hour
         num_hours = int((td_mins - (num_days * 1440)) / 60) # subtract whole days, left with remainder hours
         time_str = time_str + str(num_hours) + " hour"
-        if num_hours > 1:
+        if num_hours != 1:
             time_str = time_str + "s"
         time_str = time_str + ", "
     num_mins = int(td_mins - (num_days * 1440) - (num_hours * 60))
     time_str = time_str + str(num_mins) + " minute"
-    if num_mins > 1:
+    if num_mins != 1:
         time_str = time_str + "s"
 
     return time_str
