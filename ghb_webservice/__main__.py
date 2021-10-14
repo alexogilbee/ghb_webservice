@@ -25,6 +25,29 @@ fmt = '%Y-%m-%d %H:%M:%S'
 tstamp1 = dt.now()
 tstamp2 = dt.now()
 
+def time_string(td_mins):
+    time_str = ""
+    num_days = 0
+    num_hours = 0
+    if td_mins >= 1440: # 1 day in minutes
+        num_days = int(td_mins / 1440)
+        time_str = time_str + str(num_days) + " day"
+        if num_days > 1: # 2 days for plural
+            time_str = time_str + "s"
+        time_str = time_str + ", "
+    if td_mins >= 60: # 1 hour
+        num_hours = int((td_mins - (num_days * 1440)) / 60) # subtract whole days, left with remainder hours
+        time_str = time_str + str(num_hours) + " hour"
+        if num_hours > 1:
+            time_str = time_str + "s"
+        time_str = time_str + ", "
+    num_mins = int(td_mins - (num_days * 1440) - (num_hours * 60))
+    time_str = time_str + str(num_mins) + " minute"
+    if num_mins > 1:
+        time_str = time_str + "s"
+
+    return time_str
+
 # issue opened event
 # need to add estimated time, prob stored in DB?
 # also need an issue closed event, to record the time taken to resolve the issue
@@ -64,7 +87,9 @@ async def issue_opened_event(event, gh, *args, **kwargs):
     if eta_sum > 0:
         eta = int(eta_sum / eta_count)
 
-    message = f"Thanks for the report @{author}! This should take around {eta} minutes to resolve! (I'm a bot)."
+    timey_string = time_string(eta)
+
+    message = f"Thanks for the report @{author}! This should take around {eta} to resolve! (I'm a bot)."
     await gh.post(url, data={'body': message})
 
 @router.register("issues", action="closed")
@@ -89,27 +114,9 @@ async def issue_closed_event(event, gh, *args, **kwargs):
 
     result = db.reviews.update_one({'issue_id' : issue_id}, {'$set': {'end_time': event.data["issue"]["closed_at"], 'python_end': tstamp2, 'duration': td_mins}})
 
-    time_str = ""
-    num_days = 0
-    num_hours = 0
-    if td_mins >= 1440: # 1 day in minutes
-        num_days = int(td_mins / 1440)
-        time_str = time_str + str(num_days) + " day"
-        if num_days > 1: # 2 days for plural
-            time_str = time_str + "s"
-        time_str = time_str + ", "
-    if td_mins >= 60: # 1 hour
-        num_hours = int((td_mins - (num_days * 1440)) / 60) # subtract whole days, left with remainder hours
-        time_str = time_str + str(num_hours) + " hour"
-        if num_hours > 1:
-            time_str = time_str + "s"
-        time_str = time_str + ", "
-    num_mins = int(td_mins - (num_days * 1440) - (num_hours * 60))
-    time_str = time_str + str(num_mins) + " minute"
-    if num_mins > 1:
-        time_str = time_str + "s"
+    timey_str = time_string(td_mins)
 
-    message = f"Thanks @{author} for clsoing this issue! It took {time_str} to resolve! (I'm still a bot)."
+    message = f"Thanks @{author} for clsoing this issue! It took {timey_str} to resolve! (I'm a bot)."
     await gh.post(url, data={'body': message})
 
 @routes.post("/")
