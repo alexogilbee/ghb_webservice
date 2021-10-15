@@ -21,7 +21,6 @@ router = routing.Router()
 routes = web.RouteTableDef()
 
 eta = 60 # minutes also TEMP
-fmt = '%Y-%m-%d %H:%M:%S'
 tstamp1 = dt.now()
 tstamp2 = dt.now()
 
@@ -63,7 +62,6 @@ async def issue_opened_event(event, gh, *args, **kwargs):
     # mark down start time
     global tstamp1
     tstamp1 = dt.now()
-    #tstamp1 = tstamp1.strftime(fmt)
     
     # insert issue into database
     issue = {
@@ -73,8 +71,7 @@ async def issue_opened_event(event, gh, *args, **kwargs):
         'issue_id' : event.data["issue"]["id"],
         'title' : event.data["issue"]["title"],
         'user' : author,
-        'start_time' : event.data["issue"]["created_at"],
-        'python_start' : tstamp1
+        'start_time' : tstamp1
     }
     result = db.issueClosure.insert_one(issue)
 
@@ -103,16 +100,15 @@ async def issue_closed_event(event, gh, *args, **kwargs):
     global tstamp1
     global tstamp2
     tstamp2 = dt.now()
-    #tstamp2 = tstamp2.strftime(fmt)
 
     # update DB entry
     issue_id = event.data["issue"]["id"]
     old_data = db.issueClosure.find_one({'issue_id': issue_id})
 
-    td = tstamp2 - old_data.get('python_start')
+    td = tstamp2 - old_data.get('start_time')
     td_mins = int(round(td.total_seconds() / 60))
 
-    result = db.issueClosure.update_one({'issue_id' : issue_id}, {'$set': {'end_time': event.data["issue"]["closed_at"], 'python_end': tstamp2, 'duration': td_mins}})
+    result = db.issueClosure.update_one({'issue_id' : issue_id}, {'$set': {'end_time': tstamp2, 'duration': td_mins}})
 
     timey_str = time_string(td_mins)
 
