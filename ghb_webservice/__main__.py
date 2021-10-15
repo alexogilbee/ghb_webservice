@@ -76,6 +76,7 @@ async def issue_opened_event(event, gh, *args, **kwargs):
     result = db.issueClosure.insert_one(issue)
 
     # determine ETA from DB
+    global eta
     eta_list = db.issueClosure.find({'duration': {'$gt': 0}})
     eta_count = db.issueClosure.find({'duration': {'$gt': 0}}).count()
     eta_sum = 0
