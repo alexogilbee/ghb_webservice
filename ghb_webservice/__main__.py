@@ -79,10 +79,11 @@ async def issue_opened_event(event, gh, *args, **kwargs):
     eta_list = db.issueClosure.find({'duration': {'$gt': 0}})
     eta_count = db.issueClosure.find({'duration': {'$gt': 0}}).count()
     eta_sum = 0
-    for dura in eta_list:
-        eta_sum += dura['duration']
-    if eta_sum > 0:
-        eta = int(eta_sum / eta_count)
+    if eta_count != 0:
+        for dura in eta_list:
+            eta_sum += dura['duration']
+        if eta_sum > 0:
+            eta = int(eta_sum / eta_count)
 
     timey_string = time_string(eta)
 
